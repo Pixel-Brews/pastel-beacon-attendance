@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Calendar, Clock, Play, Square, Users, Wifi } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MapPin, Calendar, Clock, Save, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -12,12 +13,15 @@ const MarkAttendance = () => {
   const { toast } = useToast();
   const [selectedClass, setSelectedClass] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionActive, setSessionActive] = useState(false);
-  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
-  const [studentsMarked, setStudentsMarked] = useState([
-    { id: 1, name: "Alice Johnson", rollNo: "PHY001", markedAt: "10:15 AM" },
-    { id: 2, name: "Bob Smith", rollNo: "PHY002", markedAt: "10:16 AM" },
-    { id: 4, name: "Diana Prince", rollNo: "PHY004", markedAt: "10:18 AM" },
+  const [attendanceData, setAttendanceData] = useState([
+    { id: 1, name: "Alice Johnson", rollNo: "PHY001", present: true },
+    { id: 2, name: "Bob Smith", rollNo: "PHY002", present: true },
+    { id: 3, name: "Charlie Brown", rollNo: "PHY003", present: false },
+    { id: 4, name: "Diana Prince", rollNo: "PHY004", present: true },
+    { id: 5, name: "Ethan Hunt", rollNo: "PHY005", present: true },
+    { id: 6, name: "Fiona Clark", rollNo: "PHY006", present: false },
+    { id: 7, name: "George Miller", rollNo: "PHY007", present: true },
+    { id: 8, name: "Hannah Davis", rollNo: "PHY008", present: true },
   ]);
 
   const classes = [
@@ -26,11 +30,27 @@ const MarkAttendance = () => {
     { value: "biology-150", label: "Biology 150 - Section C" },
   ];
 
-  const handleStartSession = async () => {
+  const handleAttendanceChange = (studentId: number, present: boolean) => {
+    setAttendanceData(prev => 
+      prev.map(student => 
+        student.id === studentId ? { ...student, present } : student
+      )
+    );
+  };
+
+  const markAllPresent = () => {
+    setAttendanceData(prev => prev.map(student => ({ ...student, present: true })));
+  };
+
+  const markAllAbsent = () => {
+    setAttendanceData(prev => prev.map(student => ({ ...student, present: false })));
+  };
+
+  const handleSaveAttendance = async () => {
     if (!selectedClass) {
       toast({
         title: "Please Select a Class",
-        description: "You must select a class before starting an attendance session.",
+        description: "You must select a class before marking attendance.",
         variant: "destructive",
       });
       return;
@@ -38,33 +58,21 @@ const MarkAttendance = () => {
 
     setIsLoading(true);
     
-    // Simulate API call to start geofencing session
+    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      setSessionActive(true);
-      setSessionStartTime(new Date());
+      const presentCount = attendanceData.filter(s => s.present).length;
+      const totalCount = attendanceData.length;
       
       toast({
-        title: "Attendance Session Started",
-        description: "Students can now mark their attendance within the classroom area.",
+        title: "Attendance Saved Successfully",
+        description: `${presentCount}/${totalCount} students marked present`,
       });
     }, 1000);
   };
 
-  const handleStopSession = async () => {
-    setIsLoading(true);
-    
-    // Simulate API call to stop session
-    setTimeout(() => {
-      setIsLoading(false);
-      setSessionActive(false);
-      
-      toast({
-        title: "Attendance Session Ended",
-        description: `Session duration: ${sessionStartTime ? Math.round((Date.now() - sessionStartTime.getTime()) / 60000) : 0} minutes`,
-      });
-    }, 1000);
-  };
+  const presentCount = attendanceData.filter(s => s.present).length;
+  const absentCount = attendanceData.length - presentCount;
 
   return (
     <div className="min-h-screen bg-gradient-soft">
@@ -73,32 +81,32 @@ const MarkAttendance = () => {
         <Sidebar />
         <main className="flex-1 p-6">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-12 animate-fade-in">
-              <h1 className="text-4xl font-playfair font-bold text-foreground mb-4">
-                Attendance Sessions
+            <div className="mb-8 animate-fade-in">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                Mark Attendance
               </h1>
-              <p className="text-xl text-muted-foreground">
-                Start a geofenced attendance session for your class
+              <p className="text-muted-foreground">
+                Take attendance for your current class session
               </p>
             </div>
 
-            {/* Session Control */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <Card className="shadow-floating animate-slide-up border-0 p-2">
+            {/* Class Selection & Info */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <Card className="lg:col-span-2 shadow-card animate-slide-up">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-3 text-2xl font-playfair">
-                    <Calendar className="h-6 w-6 text-primary" />
-                    <span>Class Selection</span>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <span>Class Information</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4">
                   <div>
-                    <label className="text-lg font-medium text-foreground mb-3 block">
+                    <label className="text-sm font-medium text-foreground mb-2 block">
                       Select Class
                     </label>
                     <Select value={selectedClass} onValueChange={setSelectedClass}>
-                      <SelectTrigger className="w-full h-12 text-lg rounded-xl border-2">
-                        <SelectValue placeholder="Choose a class for attendance session" />
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose a class to mark attendance" />
                       </SelectTrigger>
                       <SelectContent>
                         {classes.map((cls) => (
@@ -111,13 +119,13 @@ const MarkAttendance = () => {
                   </div>
                   
                   {selectedClass && (
-                    <div className="space-y-4 pt-4 border-t border-border">
-                      <div className="flex items-center space-x-3 text-lg text-muted-foreground">
-                        <Clock className="h-5 w-5" />
+                    <div className="flex flex-wrap gap-4 pt-4 border-t border-border">
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
                         <span>Today, 10:00 AM - 11:30 AM</span>
                       </div>
-                      <div className="flex items-center space-x-3 text-lg text-muted-foreground">
-                        <MapPin className="h-5 w-5" />
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
                         <span>Room 205, Science Building</span>
                       </div>
                     </div>
@@ -125,122 +133,111 @@ const MarkAttendance = () => {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-floating animate-slide-up border-0 p-2">
+              <Card className="shadow-card animate-slide-up">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-3 text-2xl font-playfair">
-                    <Wifi className="h-6 w-6 text-primary" />
-                    <span>Session Control</span>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Users className="h-5 w-5 text-primary" />
+                    <span>Summary</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between p-4 bg-secondary rounded-xl">
-                    <div>
-                      <div className="font-medium text-foreground text-lg">Status</div>
-                      <div className="text-muted-foreground">
-                        {sessionActive ? "Session Active" : "Session Inactive"}
-                      </div>
-                    </div>
-                    <Badge 
-                      variant={sessionActive ? "default" : "outline"}
-                      className={sessionActive ? "bg-success text-success-foreground text-lg px-4 py-2" : "text-lg px-4 py-2"}
-                    >
-                      {sessionActive ? "LIVE" : "STOPPED"}
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Present</span>
+                    <Badge variant="default" className="bg-success text-success-foreground">
+                      {presentCount}
                     </Badge>
                   </div>
-
-                  {sessionActive ? (
-                    <Button
-                      onClick={handleStopSession}
-                      disabled={isLoading}
-                      className="w-full h-12 text-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
-                    >
-                      <Square className="mr-3 h-5 w-5" />
-                      {isLoading ? "Stopping..." : "Stop Attendance Session"}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleStartSession}
-                      disabled={isLoading}
-                      className="w-full h-12 text-lg bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl"
-                    >
-                      <Play className="mr-3 h-5 w-5" />
-                      {isLoading ? "Starting..." : "Start Attendance Session"}
-                    </Button>
-                  )}
-
-                  {sessionActive && sessionStartTime && (
-                    <div className="text-sm text-muted-foreground text-center">
-                      Session started at {sessionStartTime.toLocaleTimeString()}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Absent</span>
+                    <Badge variant="outline" className="border-destructive text-destructive">
+                      {absentCount}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Total</span>
+                    <Badge variant="secondary">
+                      {attendanceData.length}
+                    </Badge>
+                  </div>
+                  <div className="pt-2 border-t border-border">
+                    <div className="text-sm text-muted-foreground mb-1">Attendance Rate</div>
+                    <div className="text-lg font-semibold text-primary">
+                      {Math.round((presentCount / attendanceData.length) * 100)}%
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Live Attendance Feed */}
-            {sessionActive && (
-              <Card className="shadow-floating animate-slide-up border-0 p-2">
+            {/* Attendance List */}
+            {selectedClass && (
+              <Card className="shadow-card animate-slide-up">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-3 text-2xl font-playfair">
-                    <Users className="h-6 w-6 text-primary" />
-                    <span>Live Attendance Feed</span>
-                  </CardTitle>
-                  <CardDescription className="text-lg">
-                    Students marking attendance in real-time
-                  </CardDescription>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+                    <div>
+                      <CardTitle>Student Attendance</CardTitle>
+                      <CardDescription>
+                        Mark students as present or absent
+                      </CardDescription>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={markAllPresent}>
+                        Mark All Present
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={markAllAbsent}>
+                        Mark All Absent
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {studentsMarked.length > 0 ? (
-                      studentsMarked.map((student) => (
-                        <div
-                          key={student.id}
-                          className="flex items-center justify-between p-4 border border-border rounded-xl bg-success/5 hover:bg-success/10 transition-colors"
-                        >
-                          <div className="flex items-center space-x-4">
-                            <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
-                            <div>
-                              <div className="font-medium text-foreground text-lg">
-                                {student.name}
-                              </div>
-                              <div className="text-muted-foreground">
-                                Roll No: {student.rollNo}
-                              </div>
+                  <div className="space-y-3">
+                    {attendanceData.map((student) => (
+                      <div
+                        key={student.id}
+                        className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <Checkbox
+                            id={`student-${student.id}`}
+                            checked={student.present}
+                            onCheckedChange={(checked) => 
+                              handleAttendanceChange(student.id, !!checked)
+                            }
+                            className="scale-110"
+                          />
+                          <div>
+                            <div className="font-medium text-foreground">
+                              {student.name}
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <Badge className="bg-success text-success-foreground text-base px-3 py-1">
-                              Present
-                            </Badge>
-                            <div className="text-sm text-muted-foreground mt-1">
-                              {student.markedAt}
+                            <div className="text-sm text-muted-foreground">
+                              Roll No: {student.rollNo}
                             </div>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <Wifi className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg">Waiting for students to mark attendance...</p>
+                        <Badge
+                          variant={student.present ? "default" : "outline"}
+                          className={
+                            student.present
+                              ? "bg-success text-success-foreground"
+                              : "border-destructive text-destructive"
+                          }
+                        >
+                          {student.present ? "Present" : "Absent"}
+                        </Badge>
                       </div>
-                    )}
+                    ))}
                   </div>
                   
-                  <div className="mt-8 pt-6 border-t border-border grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-success">{studentsMarked.length}</div>
-                      <div className="text-muted-foreground">Present</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-muted-foreground">25</div>
-                      <div className="text-muted-foreground">Total</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-primary">
-                        {Math.round((studentsMarked.length / 25) * 100)}%
-                      </div>
-                      <div className="text-muted-foreground">Rate</div>
-                    </div>
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <Button
+                      onClick={handleSaveAttendance}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto bg-gradient-primary hover:opacity-90"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      {isLoading ? "Saving..." : "Save Attendance"}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

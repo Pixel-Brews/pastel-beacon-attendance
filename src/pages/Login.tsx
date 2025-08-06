@@ -3,20 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isTeacher, setIsTeacher] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async () => {
+  const handleLogin = async (userType: "teacher" | "student") => {
     setIsLoading(true);
-    const userType = isTeacher ? "teacher" : "student";
     
     // Simulate login
     setTimeout(() => {
@@ -37,80 +35,95 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-soft">
       <Header />
-      <div className="container mx-auto px-6 py-20">
+      <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
-          <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl font-playfair font-bold text-foreground mb-4">
+          <div className="text-center mb-8 animate-fade-in">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Welcome Back
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-muted-foreground">
               Sign in to your Beacon account
             </p>
           </div>
 
-          <Card className="shadow-floating animate-slide-up border-0 p-2">
-            <CardHeader className="pb-8">
-              <CardTitle className="text-2xl font-playfair text-center">Sign In</CardTitle>
-              <CardDescription className="text-center text-lg">
-                Enter your credentials to access your dashboard
+          <Card className="shadow-card animate-slide-up">
+            <CardHeader>
+              <CardTitle>Sign In</CardTitle>
+              <CardDescription>
+                Choose your account type and enter your credentials
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8">
-              {/* User Type Toggle */}
-              <div className="flex items-center justify-center space-x-4 p-4 bg-secondary rounded-xl">
-                <Label htmlFor="user-type" className={`text-lg transition-colors ${!isTeacher ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
-                  Teacher
-                </Label>
-                <Switch
-                  id="user-type"
-                  checked={!isTeacher}
-                  onCheckedChange={(checked) => setIsTeacher(!checked)}
-                  className="scale-125"
-                />
-                <Label htmlFor="user-type" className={`text-lg transition-colors ${isTeacher ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
-                  Student
-                </Label>
-              </div>
-
-              {/* Login Form */}
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="email" className="text-base">
-                    {isTeacher ? "Email" : "Student ID"}
-                  </Label>
-                  <Input
-                    id="email"
-                    type={isTeacher ? "email" : "text"}
-                    placeholder={isTeacher ? "teacher@school.edu" : "Enter your student ID"}
-                    className="h-12 text-lg rounded-xl border-2 transition-all duration-200 focus:shadow-soft"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <Label htmlFor="password" className="text-base">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    className="h-12 text-lg rounded-xl border-2 transition-all duration-200 focus:shadow-soft"
-                  />
-                </div>
-                <Button
-                  onClick={handleLogin}
-                  className="w-full h-12 text-lg bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl transition-all duration-200"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Signing In..." : `Sign In as ${isTeacher ? 'Teacher' : 'Student'}`}
-                </Button>
-              </div>
+            <CardContent>
+              <Tabs defaultValue="teacher" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="teacher">Teacher</TabsTrigger>
+                  <TabsTrigger value="student">Student</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="teacher" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="teacher-email">Email</Label>
+                    <Input
+                      id="teacher-email"
+                      type="email"
+                      placeholder="teacher@school.edu"
+                      className="transition-all duration-200 focus:shadow-soft"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="teacher-password">Password</Label>
+                    <Input
+                      id="teacher-password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="transition-all duration-200 focus:shadow-soft"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleLogin("teacher")}
+                    className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-200"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Signing In..." : "Sign In as Teacher"}
+                  </Button>
+                </TabsContent>
+                
+                <TabsContent value="student" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="student-id">Student ID</Label>
+                    <Input
+                      id="student-id"
+                      placeholder="Enter your student ID"
+                      className="transition-all duration-200 focus:shadow-soft"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="student-password">Password</Label>
+                    <Input
+                      id="student-password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="transition-all duration-200 focus:shadow-soft"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleLogin("student")}
+                    className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-200"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Signing In..." : "Sign In as Student"}
+                  </Button>
+                </TabsContent>
+              </Tabs>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4 pt-4">
-              <Button variant="link" className="text-muted-foreground">
+            <CardFooter className="flex flex-col space-y-2">
+              <Button variant="link" className="text-sm text-muted-foreground">
                 Forgot your password?
               </Button>
               <Button
                 variant="outline"
                 onClick={() => navigate("/")}
-                className="w-full h-12 text-lg rounded-xl border-2"
+                className="w-full"
               >
                 Back to Home
               </Button>

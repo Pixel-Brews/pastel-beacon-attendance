@@ -3,14 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Download, Clock, TrendingUp, BookOpen, User, MapPin, Wifi } from "lucide-react";
+import { Calendar, Download, Clock, TrendingUp, BookOpen, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 
 const StudentDashboard = () => {
   const { toast } = useToast();
-  const [isMarkingAttendance, setIsMarkingAttendance] = useState(false);
-  const [sessionAvailable, setSessionAvailable] = useState(true); // Mock: teacher has started session
 
   // Mock student data
   const studentData = {
@@ -46,21 +44,6 @@ const StudentDashboard = () => {
     { month: "June", percentage: 89 },
   ];
 
-  const handleMarkAttendance = async () => {
-    setIsMarkingAttendance(true);
-    
-    // Simulate geolocation check and attendance marking
-    setTimeout(() => {
-      setIsMarkingAttendance(false);
-      setSessionAvailable(false); // Hide button after marking
-      
-      toast({
-        title: "Attendance Marked Successfully",
-        description: "You have been marked present for Physics 101 at 10:15 AM",
-      });
-    }, 2000);
-  };
-
   const handleDownloadReport = () => {
     toast({
       title: "Download Started",
@@ -92,111 +75,80 @@ const StudentDashboard = () => {
       <Header showProfile userType="student" />
       <main className="container mx-auto px-4 py-6">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-12 animate-fade-in">
-            <h1 className="text-4xl font-playfair font-bold text-foreground mb-4">
+          <div className="mb-8 animate-fade-in">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Welcome back, {studentData.name}
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-muted-foreground">
               Track your attendance and academic progress
             </p>
           </div>
 
-          {/* Quick Attendance Action */}
-          {sessionAvailable && (
-            <Card className="shadow-floating border-0 p-2 mb-8 animate-scale-in bg-gradient-primary/5">
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                      <Wifi className="h-6 w-6 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-playfair font-semibold text-foreground">
-                        Attendance Session Active
-                      </h3>
-                      <p className="text-muted-foreground">
-                        Physics 101 - Room 205 • Started at 10:00 AM
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={handleMarkAttendance}
-                    disabled={isMarkingAttendance}
-                    className="h-12 px-8 text-lg bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl shadow-soft"
-                  >
-                    <MapPin className="mr-2 h-5 w-5" />
-                    {isMarkingAttendance ? "Marking..." : "Mark My Attendance"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="shadow-floating hover:shadow-card transition-all duration-300 animate-slide-up border-0 p-1">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-base font-medium text-muted-foreground">
+            <Card className="shadow-card hover:shadow-floating transition-all duration-300 animate-slide-up">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Overall Attendance
                 </CardTitle>
-                <TrendingUp className="h-5 w-5 text-primary" />
+                <TrendingUp className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className={`text-3xl font-bold mb-2 ${getAttendanceColor()}`}>
+                <div className={`text-2xl font-bold mb-1 ${getAttendanceColor()}`}>
                   {studentData.attendancePercentage}%
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {studentData.attendedClasses} of {studentData.totalClasses} classes
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="shadow-floating hover:shadow-card transition-all duration-300 animate-slide-up border-0 p-1">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-base font-medium text-muted-foreground">
+            <Card className="shadow-card hover:shadow-floating transition-all duration-300 animate-slide-up">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Classes Attended
                 </CardTitle>
-                <BookOpen className="h-5 w-5 text-primary" />
+                <BookOpen className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground mb-2">
+                <div className="text-2xl font-bold text-foreground mb-1">
                   {studentData.attendedClasses}
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Total classes attended
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="shadow-floating hover:shadow-card transition-all duration-300 animate-slide-up border-0 p-1">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-base font-medium text-muted-foreground">
+            <Card className="shadow-card hover:shadow-floating transition-all duration-300 animate-slide-up">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Student ID
                 </CardTitle>
-                <User className="h-5 w-5 text-primary" />
+                <User className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground mb-2">
+                <div className="text-2xl font-bold text-foreground mb-1">
                   {studentData.rollNumber}
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {studentData.class}
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="shadow-floating hover:shadow-card transition-all duration-300 animate-slide-up border-0 p-1">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-base font-medium text-muted-foreground">
+            <Card className="shadow-card hover:shadow-floating transition-all duration-300 animate-slide-up">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   This Week
                 </CardTitle>
-                <Calendar className="h-5 w-5 text-primary" />
+                <Calendar className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground mb-2">
+                <div className="text-2xl font-bold text-foreground mb-1">
                   4/5
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Classes attended this week
                 </p>
               </CardContent>
